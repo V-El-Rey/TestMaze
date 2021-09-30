@@ -1,7 +1,15 @@
+using Interface;
+
 namespace Base
 {
-    public class BaseController
+    public class BaseController : IController
     {
-        
+        public virtual void StartExecute()
+        {
+        }
+
+        public virtual void UpdateExecute()
+        {
+        }
     }
 }

@@ -1,7 +1,7 @@
 namespace Interface
 {
-    public class IStartExecute
+    public interface IStartExecute
     {
-        
+        void StartExecute();
     }
 }

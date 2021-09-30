@@ -1,7 +1,6 @@
 namespace Interface
 {
-    public interface IController
+    public interface IController : IStartExecute, IUpdateExecute
     {
-        
     }
 }
