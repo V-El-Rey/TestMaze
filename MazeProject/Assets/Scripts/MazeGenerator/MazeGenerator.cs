@@ -9,19 +9,22 @@ using UnityEngine;
         
         public MazeSettings Settings { get; set; }
         
-        public MazeGenerator()
+        public MazeGenerator(MazeSettings defaultSettings)
         {
+            _settings = defaultSettings;
         }
         
         public override void StartExecute()
         {
             base.StartExecute();
+            GenerateMaze(_settings);
             Debug.Log("Default maze created");
         }
 
         public void GenerateMaze(MazeSettings settings)
         {
-            Debug.Log($"Maze created: Width/Height : {settings.Height} / {settings.Width}");
+            _settings = settings;
+            Debug.Log($"Maze created: Width/Height : {_settings.Height} / {_settings.Width}");
         }
     }
 

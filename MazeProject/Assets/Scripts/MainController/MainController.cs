@@ -2,7 +2,6 @@ using Data;
 using Struct;
 using UI;
 using UnityEngine;
-using UnityEngine.Events;
 
 namespace MainController
 {
@@ -10,17 +9,26 @@ namespace MainController
     {
         public GameData gameData;
         public GameObject rootUI;
-        
+        public Transform objectPool;
+
+        private MazeSettings _defaultMazeSettings;
 
         private UIController _uiController;
         private MazeGenerator _mazeGenerator;
+        private PoolManager _poolManager;
 
         void Start()
         {
+            _poolManager = new PoolManager();
             _uiController = new UIController(gameData.UI, rootUI);
-            _mazeGenerator = new MazeGenerator();
-            _uiController.GetSettings += _mazeGenerator.GenerateMaze;
+            _defaultMazeSettings = new MazeSettings(gameData.width, gameData.height);
+            _mazeGenerator = new MazeGenerator(_defaultMazeSettings);
+            
+            
+            _poolManager.InitializePool(objectPool, gameData.cellPrefab);
 
+            _uiController.GetSettings += _mazeGenerator.GenerateMaze;
+            
             
             #region StartExecute
 
@@ -32,6 +40,10 @@ namespace MainController
         
         void Update()
         {
+            // if (Input.GetMouseButtonDown(0))
+            // {
+            //     PoolManager.GetCellFromPool(Camera.main.ScreenToWorldPoint(Input.mousePosition));
+            // }
         }
     }
 }
