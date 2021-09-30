@@ -7,5 +7,10 @@ namespace Data
     public class GameData : ScriptableObject
     {
         public UIView UI;
+        public GameObject cellPrefab;
+
+        [Header("DefaultMazeSettings")] 
+        public int width;
+        public int height;
     }
 }
