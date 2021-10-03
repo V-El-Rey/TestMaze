@@ -10,8 +10,10 @@ namespace MainController
         public GameData gameData;
         public GameObject rootUI;
         public Transform objectPool;
+        public Transform rootMaze;
 
         private MazeSettings _defaultMazeSettings;
+        private MazePrefabs _mazePrefabs;
 
         private UIController _uiController;
         private MazeGenerator _mazeGenerator;
@@ -22,12 +24,13 @@ namespace MainController
             _poolManager = new PoolManager();
             _uiController = new UIController(gameData.UI, rootUI);
             _defaultMazeSettings = new MazeSettings(gameData.width, gameData.height);
-            _mazeGenerator = new MazeGenerator(_defaultMazeSettings);
+            _mazePrefabs = new MazePrefabs(gameData.wallPrefab, gameData.cellPrefab);
+            _mazeGenerator = new MazeGenerator(_defaultMazeSettings, _mazePrefabs, rootMaze);
             
             
-            _poolManager.InitializePool(objectPool, gameData.cellPrefab);
+            _poolManager.InitializePool(objectPool);
 
-            _uiController.GetSettings += _mazeGenerator.GenerateMaze;
+            _uiController.GetSettings += _mazeGenerator.SpawnMaze;
             
             
             #region StartExecute
@@ -40,10 +43,7 @@ namespace MainController
         
         void Update()
         {
-            // if (Input.GetMouseButtonDown(0))
-            // {
-            //     PoolManager.GetCellFromPool(Camera.main.ScreenToWorldPoint(Input.mousePosition));
-            // }
+            _mazeGenerator.UpdateExecute();
         }
     }
 }

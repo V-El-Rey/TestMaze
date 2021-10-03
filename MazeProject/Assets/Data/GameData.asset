@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: GameData
   m_EditorClassIdentifier: 
   UI: {fileID: 5948829630353098150, guid: b6bcf325b80170c418b8151d602f78c8, type: 3}
-  cellPrefab: {fileID: 3179115069285597183, guid: 13a405dd92cc13f4aab1100dedb7fef7, type: 3}
+  cellPrefab: {fileID: 2413637181770997122, guid: 3a2fd43d1cd8e9b47bfd6e23a76649db, type: 3}
+  wallPrefab: {fileID: 4868591533511022214, guid: 0239e16247ff2bc4cb27b5394c586d86, type: 3}
   width: 5
   height: 5

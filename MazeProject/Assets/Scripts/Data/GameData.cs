@@ -8,7 +8,8 @@ namespace Data
     {
         public UIView UI;
         public GameObject cellPrefab;
-
+        public GameObject wallPrefab;
+        
         [Header("DefaultMazeSettings")] 
         public int width;
         public int height;

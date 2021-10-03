@@ -5,36 +5,42 @@ using UnityEngine;
 internal class PoolManager
 {
     private static Transform _gameObjectsParentForPool;
-    private static GameObject _cellPrefab;
 
-    private static List<CellView> _mazeCellsPool;
+    private static Dictionary<string, LinkedList<GameObject>> _objectsPool;
 
-    public void InitializePool(Transform parent, GameObject cellPrefab)
+    public void InitializePool(Transform parent)
     {
         _gameObjectsParentForPool = parent;
-        _cellPrefab = cellPrefab;
-        _mazeCellsPool = new List<CellView>();
+        _objectsPool = new Dictionary<string, LinkedList<GameObject>>();
     }
 
-    public static CellView GetCellFromPool(Vector3 position)
+    public static GameObject GetObjectFromPool(GameObject prefab)
     {
-        CellView result;
-        if (_mazeCellsPool.Count == 0)
+        if (!_objectsPool.ContainsKey(prefab.name))
         {
-            var cellPrefab = GameObject.Instantiate(_cellPrefab, _gameObjectsParentForPool);
-            cellPrefab.TryGetComponent<CellView>(out result);
+            _objectsPool[prefab.name] = new LinkedList<GameObject>();
+        }
+
+        GameObject result;
+
+        if (_objectsPool[prefab.name].Count > 0)
+        {
+            result = _objectsPool[prefab.name].First.Value;
+            _objectsPool[prefab.name].RemoveFirst();
+            result.SetActive(true);
             return result;
         }
 
-        result = _mazeCellsPool.First();
-        _mazeCellsPool.Remove(result);
+        result = GameObject.Instantiate(prefab);
+        result.name = prefab.name;
+
         return result;
     }
 
-    public static void ReturnToPool(CellView cellView)
+    public static void ReturnToPool(GameObject target)
     {
-        _mazeCellsPool.Add(cellView);
-        cellView.gameObject.transform.parent = _gameObjectsParentForPool;
-        cellView.gameObject.SetActive(false);
+        _objectsPool[target.name].AddFirst(target);
+        target.transform.parent = _gameObjectsParentForPool;
+        target.SetActive(false);
     }
 }
