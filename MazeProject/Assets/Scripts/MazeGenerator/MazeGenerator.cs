@@ -4,11 +4,8 @@ using Struct;
 using UnityEngine;
 
 
-
 internal class MazeGenerator : BaseController
 {
-    //public MazeSettings Settings { get; set; }
-
     private MazeSettings _settings;
     private MazePrefabs _prefabs;
     private Transform _rootMaze;
@@ -17,7 +14,8 @@ internal class MazeGenerator : BaseController
     private int _heightWithWalls;
 
     private Cell _currentCell;
-    
+
+
     private List<List<Cell>> _mazeColumns = new List<List<Cell>>();
     private List<GameObject> _mazeObjects = new List<GameObject>();
     private List<Cell> _unvisitedCells = new List<Cell>();
@@ -36,7 +34,6 @@ internal class MazeGenerator : BaseController
     {
         base.StartExecute();
         SpawnMaze(_settings);
-        Debug.Log("Default maze created");
     }
 
     public void SpawnMaze(MazeSettings settings)
@@ -48,7 +45,6 @@ internal class MazeGenerator : BaseController
             ReturnGridToPool();
             SpawnGrid(_widthWithWalls, _heightWithWalls);
             GenerateMaze();
-            Debug.Log($"Maze created: Width/Height : {settings.Height} / {settings.Width}");
         }
     }
 
@@ -65,24 +61,28 @@ internal class MazeGenerator : BaseController
             {
                 if (x % 2 != 0 && y % 2 != 0)
                 {
-                    if (x < _widthWithWalls - 1 && y < _heightWithWalls - 1)
-                    {
-                        var cellPrefab = PoolManager.GetObjectFromPool(_prefabs.Cell);
-                        cellPrefab.transform.parent = _rootMaze;
-                        cellPrefab.transform.position = new Vector3(x, y, 0.0f);
-                        var Cell = new Cell(CellType.Cell, cellPrefab, x, y, false);
-                        _unvisitedCells.Add(Cell);
-                        mazeRow.Add(Cell);
-                        _mazeObjects.Add(Cell.CellPrefab);
-                    }
+                    if (x >= _widthWithWalls - 1 || y >= _heightWithWalls - 1) continue;
+                    
+                    var cellPrefab = PoolManager.GetObjectFromPool(_prefabs.Cell);
+                    
+                    cellPrefab.transform.parent = _rootMaze;
+                    cellPrefab.transform.position = new Vector3(x, y, 0.0f);
+                    
+                    var cell = new Cell(CellType.Cell, cellPrefab, x, y, false);
+                    
+                    _unvisitedCells.Add(cell);
+                    mazeRow.Add(cell);
+                    _mazeObjects.Add(cell.CellPrefab);
                 }
                 else
                 {
-
                     var cellPrefab = PoolManager.GetObjectFromPool(_prefabs.Wall);
-                    var cellWall = new Cell(CellType.Wall, cellPrefab, x, y, true);
+                    
                     cellPrefab.transform.parent = _rootMaze;
                     cellPrefab.transform.position = new Vector3(x, y, 0.0f);
+                    
+                    var cellWall = new Cell(CellType.Wall, cellPrefab, x, y, true);
+                    
                     mazeRow.Add(cellWall);
                     _mazeObjects.Add(cellWall.CellPrefab);
                 }
@@ -96,18 +96,12 @@ internal class MazeGenerator : BaseController
     {
         foreach (var objects in _mazeObjects)
         {
-           PoolManager.ReturnToPool(objects);
+            PoolManager.ReturnToPool(objects);
         }
+
         _mazeObjects.Clear();
         _mazeColumns.Clear();
     }
-    
-    
-// Debug.Log($"Neighbor cell coordinates: {neighborCell.XCoordinate}:{neighborCell.ZCoordinate}");
-// Debug.Log($"Selected cell coordinates: {currentCell.XCoordinate}:{currentCell.ZCoordinate}");
-
- // cellToRemove = _unvisitedCells.Find(x => currentCell.CellPrefab);
- // _unvisitedCells.Remove(cellToRemove);
 
     private void GenerateMaze()
     {
@@ -120,19 +114,17 @@ internal class MazeGenerator : BaseController
         while (_unvisitedCells.Count > 0)
         {
             GetAllNeighborCells(_currentCell);
-    
+
             if (IsCellGotUnvisitedNeighbors(_currentCell))
             {
                 _cellsStack.Push(_currentCell);
                 var neighborCell = SelectRandomNeighbor(_currentCell);
 
-                RemoveWall(_currentCell,neighborCell);
-                
+                RemoveWall(_currentCell, neighborCell);
+
                 _currentCell = neighborCell;
                 _currentCell.Visited = true;
                 _unvisitedCells.Remove(_unvisitedCells.Find(x => _currentCell.CellPrefab));
-         
-
             }
             else
             {
@@ -140,7 +132,6 @@ internal class MazeGenerator : BaseController
                 {
                     _currentCell = _cellsStack.Pop();
                     _currentCell.Visited = true;
-              
                 }
                 else
                 {
@@ -152,7 +143,7 @@ internal class MazeGenerator : BaseController
 
     private Cell SelectRandomNeighbor(Cell cell)
     {
-        var randNumber = Random.Range(0, _neighborCells.Count); 
+        var randNumber = Random.Range(0, _neighborCells.Count);
         return _neighborCells[randNumber];
     }
 
@@ -186,27 +177,25 @@ internal class MazeGenerator : BaseController
 
     private void SwapWallWithCell(int xCoordinate, int yCoordinate)
     {
-
         _mazeColumns[xCoordinate][yCoordinate].CellPrefab.SetActive(false);
         _mazeColumns[xCoordinate][yCoordinate].Type = CellType.Cell;
         var cellPrefab = PoolManager.GetObjectFromPool(_prefabs.Cell);
         cellPrefab.transform.position = new Vector3(xCoordinate, yCoordinate, 0.0f);
         cellPrefab.transform.parent = _rootMaze;
-      
+
 
         _mazeColumns[xCoordinate][yCoordinate].CellPrefab = cellPrefab;
         _mazeColumns[xCoordinate][yCoordinate].XCoordinate = xCoordinate;
         _mazeColumns[xCoordinate][yCoordinate].YCoordinate = yCoordinate;
         _mazeColumns[xCoordinate][yCoordinate].Visited = true;
-   
-        
+
+
         _mazeObjects.Add(_mazeColumns[xCoordinate][yCoordinate].CellPrefab);
     }
 
     private bool IsCellGotUnvisitedNeighbors(Cell cell)
     {
         GetAllNeighborCells(cell);
-        //Debug.LogError(_neighborCells.Count);
         return _neighborCells.Count > 0;
     }
 
@@ -216,25 +205,25 @@ internal class MazeGenerator : BaseController
         if (cell.XCoordinate + 2 < _mazeColumns.Count)
         {
             var rightNeighbor = _mazeColumns[cell.XCoordinate + 2][cell.YCoordinate];
-            if(!rightNeighbor.Visited && rightNeighbor.Type == CellType.Cell) _neighborCells.Add(rightNeighbor);
+            if (!rightNeighbor.Visited && rightNeighbor.Type == CellType.Cell) _neighborCells.Add(rightNeighbor);
         }
 
         if (cell.XCoordinate - 2 > 0)
         {
             var leftNeighbor = _mazeColumns[cell.XCoordinate - 2][cell.YCoordinate];
-            if(!leftNeighbor.Visited && leftNeighbor.Type == CellType.Cell) _neighborCells.Add(leftNeighbor);
+            if (!leftNeighbor.Visited && leftNeighbor.Type == CellType.Cell) _neighborCells.Add(leftNeighbor);
         }
 
         if (cell.YCoordinate + 2 < _mazeColumns[cell.XCoordinate].Count)
         {
             var upNeighbor = _mazeColumns[cell.XCoordinate][cell.YCoordinate + 2];
-            if(!upNeighbor.Visited && upNeighbor.Type == CellType.Cell) _neighborCells.Add(upNeighbor);
+            if (!upNeighbor.Visited && upNeighbor.Type == CellType.Cell) _neighborCells.Add(upNeighbor);
         }
 
         if (cell.YCoordinate - 2 >= 0)
         {
             var downNeighbor = _mazeColumns[cell.XCoordinate][cell.YCoordinate - 2];
-            if(!downNeighbor.Visited && downNeighbor.Type == CellType.Cell) _neighborCells.Add(downNeighbor);
+            if (!downNeighbor.Visited && downNeighbor.Type == CellType.Cell) _neighborCells.Add(downNeighbor);
         }
     }
 }
