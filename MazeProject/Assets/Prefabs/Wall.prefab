@@ -108,5 +108,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0221a28de31845f4b938966f0f28c890, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  isVisited: 0
-  mat: {fileID: 2100000, guid: 47ddbd179fe1b8c4c975461d103793a0, type: 2}
+  isWall: 1

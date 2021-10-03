@@ -11,6 +11,7 @@ namespace UI
     {
         private UIView _uiView;
         private readonly GameObject _rootUI;
+        private TouchScreenKeyboard _keyboard;
 
         public UnityAction<MazeSettings> GetSettings;
 
@@ -25,9 +26,14 @@ namespace UI
             base.StartExecute();
             Object.Instantiate(_uiView.uiPrefab, _rootUI.transform);
             _uiView = Object.FindObjectOfType<UIView>();
-            _uiView.generateButton.onClick.AddListener(() =>
+            _uiView.generateButton.onClick.AddListener(() => { GetSettings?.Invoke(GetMazeSettings()); });
+            _uiView.heightInput.onSelect.AddListener((x) =>
             {
-                GetSettings?.Invoke(GetMazeSettings());
+                _keyboard = TouchScreenKeyboard.Open(_uiView.heightInput.text, TouchScreenKeyboardType.NumberPad);
+            });
+            _uiView.widthInput.onSelect.AddListener((x) =>
+            {
+                _keyboard = TouchScreenKeyboard.Open(_uiView.widthInput.text, TouchScreenKeyboardType.NumberPad);
             });
         }
 

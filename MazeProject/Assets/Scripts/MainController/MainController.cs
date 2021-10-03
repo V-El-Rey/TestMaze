@@ -1,3 +1,4 @@
+using CameraControl;
 using Data;
 using Struct;
 using UI;
@@ -11,6 +12,7 @@ namespace MainController
         public GameObject rootUI;
         public Transform objectPool;
         public Transform rootMaze;
+        public CameraView cameraView;
 
         private MazeSettings _defaultMazeSettings;
         private MazePrefabs _mazePrefabs;
@@ -18,6 +20,8 @@ namespace MainController
         private UIController _uiController;
         private MazeGenerator _mazeGenerator;
         private PoolManager _poolManager;
+        private CameraController _cameraController;
+        private InputController _inputController;
 
         void Start()
         {
@@ -26,13 +30,15 @@ namespace MainController
             _defaultMazeSettings = new MazeSettings(gameData.width, gameData.height);
             _mazePrefabs = new MazePrefabs(gameData.wallPrefab, gameData.cellPrefab);
             _mazeGenerator = new MazeGenerator(_defaultMazeSettings, _mazePrefabs, rootMaze);
+            _cameraController = new CameraController(cameraView);
+            _inputController = new InputController(cameraView.Camera);
             
             
             _poolManager.InitializePool(objectPool);
 
             _uiController.GetSettings += _mazeGenerator.SpawnMaze;
-            
-            
+
+
             #region StartExecute
 
              _uiController.StartExecute();
@@ -43,7 +49,8 @@ namespace MainController
         
         void Update()
         {
-            _mazeGenerator.UpdateExecute();
+            _uiController.UpdateExecute();
+            _inputController.UpdateExecute();
         }
     }
 }

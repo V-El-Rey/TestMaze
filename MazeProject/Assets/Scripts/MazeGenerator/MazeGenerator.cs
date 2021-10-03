@@ -1,9 +1,8 @@
 using System.Collections.Generic;
-using System.Linq;
 using Base;
 using Struct;
 using UnityEngine;
-using UnityEngine.UIElements;
+
 
 
 internal class MazeGenerator : BaseController
@@ -42,12 +41,15 @@ internal class MazeGenerator : BaseController
 
     public void SpawnMaze(MazeSettings settings)
     {
-        _heightWithWalls = settings.Height + settings.Height + 1;
-        _widthWithWalls = settings.Width + settings.Width + 1;
-        ReturnGridToPool();
-        SpawnGrid(_widthWithWalls, _heightWithWalls);
-        GenerateMaze();
-        Debug.Log($"Maze created: Width/Height : {settings.Height} / {settings.Width}");
+        if (settings.Height != 0 && settings.Width != 0)
+        {
+            _heightWithWalls = settings.Height + settings.Height + 1;
+            _widthWithWalls = settings.Width + settings.Width + 1;
+            ReturnGridToPool();
+            SpawnGrid(_widthWithWalls, _heightWithWalls);
+            GenerateMaze();
+            Debug.Log($"Maze created: Width/Height : {settings.Height} / {settings.Width}");
+        }
     }
 
     private void SpawnGrid(int width, int height)
@@ -59,17 +61,16 @@ internal class MazeGenerator : BaseController
         {
             var mazeRow = new List<Cell>();
 
-            for (int z = 0; z < height; z++)
+            for (int y = 0; y < height; y++)
             {
-                if (x % 2 != 0 && z % 2 != 0)
+                if (x % 2 != 0 && y % 2 != 0)
                 {
-                    if (x < _widthWithWalls - 1 && z < _heightWithWalls - 1)
+                    if (x < _widthWithWalls - 1 && y < _heightWithWalls - 1)
                     {
                         var cellPrefab = PoolManager.GetObjectFromPool(_prefabs.Cell);
                         cellPrefab.transform.parent = _rootMaze;
-                        cellPrefab.transform.position = new Vector3(x, 0.0f, z);
-                        cellPrefab.GetComponent<CellView>().isVisited = false;
-                        var Cell = new Cell(CellType.Cell, cellPrefab, x, z, false);
+                        cellPrefab.transform.position = new Vector3(x, y, 0.0f);
+                        var Cell = new Cell(CellType.Cell, cellPrefab, x, y, false);
                         _unvisitedCells.Add(Cell);
                         mazeRow.Add(Cell);
                         _mazeObjects.Add(Cell.CellPrefab);
@@ -79,10 +80,9 @@ internal class MazeGenerator : BaseController
                 {
 
                     var cellPrefab = PoolManager.GetObjectFromPool(_prefabs.Wall);
-                    var cellWall = new Cell(CellType.Wall, cellPrefab, x, z, true);
+                    var cellWall = new Cell(CellType.Wall, cellPrefab, x, y, true);
                     cellPrefab.transform.parent = _rootMaze;
-                    cellPrefab.transform.position = new Vector3(x, 0.0f, z);
-                    cellPrefab.GetComponent<CellView>().isVisited = false;
+                    cellPrefab.transform.position = new Vector3(x, y, 0.0f);
                     mazeRow.Add(cellWall);
                     _mazeObjects.Add(cellWall.CellPrefab);
                 }
@@ -114,7 +114,6 @@ internal class MazeGenerator : BaseController
         _cellsStack.Clear();
         _currentCell = _mazeColumns[1][1];
         _currentCell.Visited = true;
-        _currentCell.CellPrefab.GetComponent<CellView>().isVisited = _currentCell.Visited;
         _unvisitedCells.Remove(_unvisitedCells.Find(x => _currentCell.CellPrefab));
 
 
@@ -131,7 +130,6 @@ internal class MazeGenerator : BaseController
                 
                 _currentCell = neighborCell;
                 _currentCell.Visited = true;
-                _currentCell.CellPrefab.GetComponent<CellView>().isVisited = _currentCell.Visited;
                 _unvisitedCells.Remove(_unvisitedCells.Find(x => _currentCell.CellPrefab));
          
 
@@ -163,46 +161,46 @@ internal class MazeGenerator : BaseController
     {
         if (current.XCoordinate > neighbor.XCoordinate)
         {
-            SwapWallWithCell(current.XCoordinate - 1, current.ZCoordinate);
+            SwapWallWithCell(current.XCoordinate - 1, current.YCoordinate);
             return;
         }
 
         if (current.XCoordinate < neighbor.XCoordinate)
         {
-            SwapWallWithCell(current.XCoordinate + 1, current.ZCoordinate);
+            SwapWallWithCell(current.XCoordinate + 1, current.YCoordinate);
             return;
         }
 
-        if (current.ZCoordinate > neighbor.ZCoordinate)
+        if (current.YCoordinate > neighbor.YCoordinate)
         {
-            SwapWallWithCell(current.XCoordinate, current.ZCoordinate - 1);
+            SwapWallWithCell(current.XCoordinate, current.YCoordinate - 1);
             return;
         }
 
-        if (current.ZCoordinate < neighbor.ZCoordinate)
+        if (current.YCoordinate < neighbor.YCoordinate)
         {
-            SwapWallWithCell(current.XCoordinate, current.ZCoordinate + 1);
+            SwapWallWithCell(current.XCoordinate, current.YCoordinate + 1);
         }
     }
 
 
-    private void SwapWallWithCell(int xCoordinate, int zCoordinate)
+    private void SwapWallWithCell(int xCoordinate, int yCoordinate)
     {
 
-        _mazeColumns[xCoordinate][zCoordinate].CellPrefab.SetActive(false);
-        _mazeColumns[xCoordinate][zCoordinate].Type = CellType.Cell;
+        _mazeColumns[xCoordinate][yCoordinate].CellPrefab.SetActive(false);
+        _mazeColumns[xCoordinate][yCoordinate].Type = CellType.Cell;
         var cellPrefab = PoolManager.GetObjectFromPool(_prefabs.Cell);
-        cellPrefab.transform.position = new Vector3(xCoordinate, 0.0f, zCoordinate);
+        cellPrefab.transform.position = new Vector3(xCoordinate, yCoordinate, 0.0f);
         cellPrefab.transform.parent = _rootMaze;
       
 
-        _mazeColumns[xCoordinate][zCoordinate].CellPrefab = cellPrefab;
-        _mazeColumns[xCoordinate][zCoordinate].XCoordinate = xCoordinate;
-        _mazeColumns[xCoordinate][zCoordinate].ZCoordinate = zCoordinate;
-        _mazeColumns[xCoordinate][zCoordinate].Visited = true;
+        _mazeColumns[xCoordinate][yCoordinate].CellPrefab = cellPrefab;
+        _mazeColumns[xCoordinate][yCoordinate].XCoordinate = xCoordinate;
+        _mazeColumns[xCoordinate][yCoordinate].YCoordinate = yCoordinate;
+        _mazeColumns[xCoordinate][yCoordinate].Visited = true;
    
         
-        _mazeObjects.Add(_mazeColumns[xCoordinate][zCoordinate].CellPrefab);
+        _mazeObjects.Add(_mazeColumns[xCoordinate][yCoordinate].CellPrefab);
     }
 
     private bool IsCellGotUnvisitedNeighbors(Cell cell)
@@ -217,25 +215,25 @@ internal class MazeGenerator : BaseController
         _neighborCells.Clear();
         if (cell.XCoordinate + 2 < _mazeColumns.Count)
         {
-            var rightNeighbor = _mazeColumns[cell.XCoordinate + 2][cell.ZCoordinate];
+            var rightNeighbor = _mazeColumns[cell.XCoordinate + 2][cell.YCoordinate];
             if(!rightNeighbor.Visited && rightNeighbor.Type == CellType.Cell) _neighborCells.Add(rightNeighbor);
         }
 
         if (cell.XCoordinate - 2 > 0)
         {
-            var leftNeighbor = _mazeColumns[cell.XCoordinate - 2][cell.ZCoordinate];
+            var leftNeighbor = _mazeColumns[cell.XCoordinate - 2][cell.YCoordinate];
             if(!leftNeighbor.Visited && leftNeighbor.Type == CellType.Cell) _neighborCells.Add(leftNeighbor);
         }
 
-        if (cell.ZCoordinate + 2 < _mazeColumns[cell.XCoordinate].Count)
+        if (cell.YCoordinate + 2 < _mazeColumns[cell.XCoordinate].Count)
         {
-            var upNeighbor = _mazeColumns[cell.XCoordinate][cell.ZCoordinate + 2];
+            var upNeighbor = _mazeColumns[cell.XCoordinate][cell.YCoordinate + 2];
             if(!upNeighbor.Visited && upNeighbor.Type == CellType.Cell) _neighborCells.Add(upNeighbor);
         }
 
-        if (cell.ZCoordinate - 2 >= 0)
+        if (cell.YCoordinate - 2 >= 0)
         {
-            var downNeighbor = _mazeColumns[cell.XCoordinate][cell.ZCoordinate - 2];
+            var downNeighbor = _mazeColumns[cell.XCoordinate][cell.YCoordinate - 2];
             if(!downNeighbor.Visited && downNeighbor.Type == CellType.Cell) _neighborCells.Add(downNeighbor);
         }
     }
