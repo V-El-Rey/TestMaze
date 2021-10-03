@@ -9,16 +9,16 @@ namespace Struct
         public GameObject CellPrefab;
 
         public int XCoordinate;
-        public int ZCoordinate;
+        public int YCoordinate;
 
         public bool Visited;
         
-        public Cell(CellType type,GameObject cellPrefab, int xCoordinate, int zCoordinate, bool visited)
+        public Cell(CellType type,GameObject cellPrefab, int xCoordinate, int yCoordinate, bool visited)
         {
             Type = type;
             CellPrefab = cellPrefab;
             XCoordinate = xCoordinate;
-            ZCoordinate = zCoordinate;
+            YCoordinate = yCoordinate;
             Visited = visited;
         }
 
@@ -27,7 +27,7 @@ namespace Struct
             Type = CellType.None;
             CellPrefab = null;
             XCoordinate = 0;
-            ZCoordinate = 0;
+            YCoordinate = 0;
             Visited = false;
         }
     }

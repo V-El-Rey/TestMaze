@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: 2316068330990494175}
   m_Layer: 0
   m_Name: MazeCell
-  m_TagString: Untagged
+  m_TagString: Cell
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -29,7 +29,7 @@ Transform:
   m_GameObject: {fileID: 2413637181770997122}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 1, y: 0, z: 2}
-  m_LocalScale: {x: 1, y: 0.1, z: 1}
+  m_LocalScale: {x: 1, y: 1, z: 0.1}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
@@ -108,4 +108,3 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0221a28de31845f4b938966f0f28c890, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  isVisited: 1
