@@ -2,10 +2,15 @@ using System.Collections.Generic;
 using Base;
 using Struct;
 using UnityEngine;
+using UnityEngine.Events;
 
 
 internal class MazeGenerator : BaseController
 {
+    public UnityAction<CellCoordinate> SendSpawnPointCoordinate;
+    public UnityAction<List<Cell>> SendUnvisitedNeighbors;
+    public UnityAction<List<List<Cell>>> SendCellsArray;
+    
     private MazeSettings _settings;
     private MazePrefabs _prefabs;
     private Transform _rootMaze;
@@ -17,10 +22,13 @@ internal class MazeGenerator : BaseController
 
 
     private List<List<Cell>> _mazeColumns = new List<List<Cell>>();
+    
     private List<GameObject> _mazeObjects = new List<GameObject>();
     private List<Cell> _unvisitedCells = new List<Cell>();
     private Stack<Cell> _cellsStack = new Stack<Cell>();
     private List<Cell> _neighborCells = new List<Cell>();
+    
+    
 
 
     public MazeGenerator(MazeSettings defaultSettings, MazePrefabs prefabs, Transform rootMaze)
@@ -45,6 +53,7 @@ internal class MazeGenerator : BaseController
             ReturnGridToPool();
             SpawnGrid(_widthWithWalls, _heightWithWalls);
             GenerateMaze();
+            CalculateRandomSpawnPoint();
         }
     }
 
@@ -67,7 +76,7 @@ internal class MazeGenerator : BaseController
                     
                     cellPrefab.transform.parent = _rootMaze;
                     cellPrefab.transform.position = new Vector3(x, y, 0.0f);
-                    
+
                     var cell = new Cell(CellType.Cell, cellPrefab, x, y, false);
                     
                     _unvisitedCells.Add(cell);
@@ -80,7 +89,7 @@ internal class MazeGenerator : BaseController
                     
                     cellPrefab.transform.parent = _rootMaze;
                     cellPrefab.transform.position = new Vector3(x, y, 0.0f);
-                    
+
                     var cellWall = new Cell(CellType.Wall, cellPrefab, x, y, true);
                     
                     mazeRow.Add(cellWall);
@@ -113,7 +122,7 @@ internal class MazeGenerator : BaseController
 
         while (_unvisitedCells.Count > 0)
         {
-            GetAllNeighborCells(_currentCell);
+            GetAllNeighborCells(_currentCell, 2);
 
             if (IsCellGotUnvisitedNeighbors(_currentCell))
             {
@@ -139,6 +148,7 @@ internal class MazeGenerator : BaseController
                 }
             }
         }
+        SendCellsArray?.Invoke(_mazeColumns);
     }
 
     private Cell SelectRandomNeighbor(Cell cell)
@@ -182,8 +192,7 @@ internal class MazeGenerator : BaseController
         var cellPrefab = PoolManager.GetObjectFromPool(_prefabs.Cell);
         cellPrefab.transform.position = new Vector3(xCoordinate, yCoordinate, 0.0f);
         cellPrefab.transform.parent = _rootMaze;
-
-
+        
         _mazeColumns[xCoordinate][yCoordinate].CellPrefab = cellPrefab;
         _mazeColumns[xCoordinate][yCoordinate].XCoordinate = xCoordinate;
         _mazeColumns[xCoordinate][yCoordinate].YCoordinate = yCoordinate;
@@ -195,36 +204,51 @@ internal class MazeGenerator : BaseController
 
     private bool IsCellGotUnvisitedNeighbors(Cell cell)
     {
-        GetAllNeighborCells(cell);
+        GetAllNeighborCells(cell, 2);
         return _neighborCells.Count > 0;
     }
 
-    private void GetAllNeighborCells(Cell cell)
+    private void GetAllNeighborCells(Cell cell, int step)
     {
         _neighborCells.Clear();
-        if (cell.XCoordinate + 2 < _mazeColumns.Count)
+        if (cell.XCoordinate + step < _mazeColumns.Count)
         {
-            var rightNeighbor = _mazeColumns[cell.XCoordinate + 2][cell.YCoordinate];
+            var rightNeighbor = _mazeColumns[cell.XCoordinate + step][cell.YCoordinate];
             if (!rightNeighbor.Visited && rightNeighbor.Type == CellType.Cell) _neighborCells.Add(rightNeighbor);
         }
 
-        if (cell.XCoordinate - 2 > 0)
+        if (cell.XCoordinate - step > 0)
         {
-            var leftNeighbor = _mazeColumns[cell.XCoordinate - 2][cell.YCoordinate];
+            var leftNeighbor = _mazeColumns[cell.XCoordinate - step][cell.YCoordinate];
             if (!leftNeighbor.Visited && leftNeighbor.Type == CellType.Cell) _neighborCells.Add(leftNeighbor);
         }
 
-        if (cell.YCoordinate + 2 < _mazeColumns[cell.XCoordinate].Count)
+        if (cell.YCoordinate + step < _mazeColumns[cell.XCoordinate].Count)
         {
-            var upNeighbor = _mazeColumns[cell.XCoordinate][cell.YCoordinate + 2];
+            var upNeighbor = _mazeColumns[cell.XCoordinate][cell.YCoordinate + step];
             if (!upNeighbor.Visited && upNeighbor.Type == CellType.Cell) _neighborCells.Add(upNeighbor);
         }
 
-        if (cell.YCoordinate - 2 >= 0)
+        if (cell.YCoordinate - step >= 0)
         {
-            var downNeighbor = _mazeColumns[cell.XCoordinate][cell.YCoordinate - 2];
+            var downNeighbor = _mazeColumns[cell.XCoordinate][cell.YCoordinate - step];
             if (!downNeighbor.Visited && downNeighbor.Type == CellType.Cell) _neighborCells.Add(downNeighbor);
         }
+    }
+
+    private void CalculateRandomSpawnPoint()
+    {
+        var randX = Random.Range(1, _mazeColumns.Count - 1);
+        var randY = Random.Range(1, _mazeColumns[randX].Count - 1);
+        while (_mazeColumns[randX][randY].Type == CellType.Wall)
+        {
+            randX = Random.Range(1, _mazeColumns.Count - 1);
+            randY = Random.Range(1, _mazeColumns[randX].Count - 1);
+        }
+
+        CellCoordinate coordinate = new CellCoordinate(randX, randY);
+        
+        SendSpawnPointCoordinate?.Invoke(coordinate);
     }
 }
 

@@ -3,5 +3,4 @@ using UnityEngine.EventSystems;
 
 public class CellView : MonoBehaviour
 {
-    
 }

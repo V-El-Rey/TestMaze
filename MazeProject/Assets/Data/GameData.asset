@@ -15,5 +15,8 @@ MonoBehaviour:
   UI: {fileID: 5948829630353098150, guid: b6bcf325b80170c418b8151d602f78c8, type: 3}
   cellPrefab: {fileID: 2413637181770997122, guid: 3a2fd43d1cd8e9b47bfd6e23a76649db, type: 3}
   wallPrefab: {fileID: 4868591533511022214, guid: 0239e16247ff2bc4cb27b5394c586d86, type: 3}
-  width: 8
-  height: 8
+  width: 3
+  height: 3
+  dragThreshold: 0.2
+  dragSensitivity: 0.2
+  movementStepDelay: 13
