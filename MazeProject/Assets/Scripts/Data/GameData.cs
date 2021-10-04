@@ -13,5 +13,10 @@ namespace Data
         [Header("DefaultMazeSettings")] 
         public int width;
         public int height;
+
+        [Header("Other settings")] 
+        public float dragThreshold;
+        public float dragSensitivity;
+        public float movementStepDelay;
     }
 }

@@ -12,7 +12,6 @@ GameObject:
   - component: {fileID: 5693797077160178857}
   - component: {fileID: 3204892889699153568}
   - component: {fileID: 3831249979265700094}
-  - component: {fileID: 2316068330990494175}
   m_Layer: 0
   m_Name: MazeCell
   m_TagString: Cell
@@ -96,15 +95,3 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &2316068330990494175
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2413637181770997122}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0221a28de31845f4b938966f0f28c890, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
